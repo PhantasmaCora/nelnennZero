@@ -1,8 +1,8 @@
 # nelnennZero
 A small game, serving as a prequel to my larger planned game Nelnenn, a way to learn the basics of GitHub, and something to do when I'm bored
- ___
+ /___
 /o-o
- ___
+ /___
 /   +--+
  ===  ($)
  ] ]
