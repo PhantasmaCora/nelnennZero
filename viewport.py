@@ -24,39 +24,50 @@ class Viewport(object):
 class CameraViewport(Viewport):
     def __init__(self, mapPos):
         Viewport.__init__(self, (512, 512))
-
-
+        self.cached = None
+        import map
+        self.cachePos = map.MapPos(mapPos.map, (-1,-1), -1)
         self.mapPos = mapPos
 
     def draw(self, lf):
         self.rendersurf.fill((0,0,0))
-        # draw floors and ceilings
-        for offset in camZone[self.mapPos.facing]:
-            pos = [self.mapPos.xy[0], self.mapPos.xy[1]]
-            pos[0] += offset[0]
-            pos[1] += offset[1]
-            fl = self.mapPos.map.getFloor(pos)
-            if fl != None:
-                self.rendersurf.blit(fl.getView(self.mapPos), (0,0))
-            cl = self.mapPos.map.getCeiling(pos)
-            if cl != None:
-                self.rendersurf.blit(cl.getView(self.mapPos), (0,0))
+        # check whether cached terrain images are still correct
+        if self.mapPos == self.cachePos:
+            pass
+        else:
+            self.cachePos = copy.copy(self.mapPos) # mark this as new cache position
+            print("new cache")
+            self.cached = self.rendersurf.copy()
+            # draw floors and ceilings
+            for offset in camZone[self.mapPos.facing]:
+                pos = [self.mapPos.xy[0], self.mapPos.xy[1]]
+                pos[0] += offset[0]
+                pos[1] += offset[1]
+                fl = self.mapPos.map.getFloor(pos)
+                if fl != None:
+                    self.cached.blit(fl.getView(self.mapPos), (0,0))
+                cl = self.mapPos.map.getCeiling(pos)
+                if cl != None:
+                    self.cached.blit(cl.getView(self.mapPos), (0,0))
 
-        # draw walls
-        # 1. acquire walls to list
-        ls = []
-        for offset in camZoneWall[self.mapPos.facing]:
-            pos = [self.mapPos.xy[0], self.mapPos.xy[1]]
-            pos[0] += offset[0]
-            pos[1] += offset[1]
-            ls.extend(self.mapPos.map.getWalls(tuple(pos)))
-        # 2. acquire images from walls
-        ls2 = []
-        for wall in ls:
-            ls2.append(wall.getView(self.mapPos))
-        ls2.sort(key=lambda tup: tup[1]) # sort by z-level, putting furthest away at start of list
-        for tup in ls2:
-            self.rendersurf.blit(tup[0], (0,0))
+            # draw walls
+            # 1. acquire walls to list
+            ls = []
+            for offset in camZoneWall[self.mapPos.facing]:
+                pos = [self.mapPos.xy[0], self.mapPos.xy[1]]
+                pos[0] += offset[0]
+                pos[1] += offset[1]
+                ls.extend(self.mapPos.map.getWalls(tuple(pos)))
+            # 2. acquire images from walls
+            ls2 = []
+            for wall in ls:
+                ls2.append(wall.getView(self.mapPos))
+            ls2.sort(key=lambda tup: tup[1]) # sort by z-level, putting furthest away at start of list
+            for tup in ls2:
+                self.cached.blit(tup[0], (0,0))
+
+        # blit terrain cache to rendering surface
+        self.rendersurf.blit(self.cached, (0,0))
 
         # final step - render lantern darkness
         dark = pygame.transform.smoothscale(lanternImg, (round(640 * lf), round(640 * lf)))

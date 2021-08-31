@@ -14,6 +14,11 @@ class MapPos(object):
         self.xy = pos
         self.facing = facing
 
+    def __eq__(self, other):
+        if not isinstance(other, MapPos):
+            return False
+        return (self.map == other.map and self.xy[0] == other.xy[0] and self.xy[1] == other.xy[1] and self.facing == other.facing)
+
 class Wall(object):
     def __init__(self, image, pos, viewOffFacing = True, passable = False):
         self.image = image
