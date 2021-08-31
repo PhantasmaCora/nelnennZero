@@ -46,11 +46,6 @@ class Wall(object):
         angle = camPos.facing - self.pos.facing
         angle = angle % 4
 
-        if (row > 2 and not angle == 2) or (col < 0 and not angle == 1) or (col > 2 and not angle == 3) or (row < 0 and not angle == 2):
-            empty = pygame.Surface((1,1))
-            empty.set_colorkey((0,0,0))
-            return (empty, 10)
-
         if angle == 0:
             r0 = row
             c0 = col
@@ -91,7 +86,12 @@ class Wall(object):
             if col == 1 or col == 2:
                 level -= 0.5
 
-        print(str((r0,c0)) + " " + str((r1,c1)))
+        if c0 < 0 or c0 > 3 or c1 < 0 or c1 > 3 or r0 < 0 or r0 > 3 or r1 < 0 or r1 > 3:
+            empty = pygame.Surface((1,1))
+            empty.set_colorkey((0,0,0))
+            return (empty, 10)
+
+        # print(str((r0,c0)) + " " + str((r1,c1)))
 
         result = transform.wall_transform(self.image, (cRows[r0], cRows[r1], fRows[r0], fRows[r1]), (xCols[r0][c0], xCols[r1][c1]))
         result.set_colorkey((0,0,0))
@@ -213,3 +213,27 @@ class Map(object):
             return self.walls[pos]
         except KeyError:
             return []
+
+    def attemptMove(self, entityPos):
+        f = entityPos.facing
+        tempPos = [entityPos.xy[0], entityPos.xy[1]]
+        if f == 0:
+            tempPos[1] -= 1
+        elif f == 1:
+            tempPos[0] += 1
+        elif f == 2:
+            tempPos[1] += 1
+        elif f == 3:
+            tempPos[0] -= 1
+
+        newPos = MapPos(self, tuple(tempPos), entityPos.facing)
+
+        for wall in self.getWalls(tuple(entityPos.xy)):
+            if wall.passable == False and (wall.pos.facing - entityPos.facing) % 4 == 2:
+                return (entityPos, "fail")
+        for wall in self.getWalls(tuple(newPos.xy)):
+            if wall.passable == False and (wall.pos.facing - newPos.facing) % 4 == 0:
+                return (entityPos, "fail")
+        # if newPos tile not passable return fail
+
+        return (newPos, "succeed")

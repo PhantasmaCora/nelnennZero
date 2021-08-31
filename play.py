@@ -59,15 +59,9 @@ while True:
                 if thePos.facing < 0:
                     thePos.facing += 4
             elif event.key == K_UP:
-                f = thePos.facing
-                if f == 0:
-                    thePos.xy[1] -= 1
-                elif f == 1:
-                    thePos.xy[0] += 1
-                elif f == 2:
-                    thePos.xy[1] += 1
-                elif f == 3:
-                    thePos.xy[0] -= 1
+                result = thePos.map.attemptMove(thePos)
+                thePos = result[0]
+                vp.mapPos = thePos
 
     DISPLAYSURF.fill((0,0,0))
 

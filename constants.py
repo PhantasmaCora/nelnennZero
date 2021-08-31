@@ -59,10 +59,10 @@ camWest = list(itertools.product([-3 ,-2, -1], centerLs))
 camZone = [camNorth, camEast, camSouth, camWest]
 
 centerLs = [-2, -1, 0, 1, 2]
-camNorthW = list(itertools.product(centerLs, [-5, -4, -3, -2, -1, 0]))
-camEastW = list(itertools.product([5, 4, 3, 2, 1, 0], centerLs))
-camSouthW = list(itertools.product(centerLs, [5, 4, 3, 2, 1, 0]))
-camWestW = list(itertools.product([-5, -4, -3, -2, -1, 0], centerLs))
+camNorthW = list(itertools.product(centerLs, [-4, -3, -2, -1, 0]))
+camEastW = list(itertools.product([4, 3, 2, 1, 0], centerLs))
+camSouthW = list(itertools.product(centerLs, [4, 3, 2, 1, 0]))
+camWestW = list(itertools.product([-4, -3, -2, -1, 0], centerLs))
 camZoneWall = [camNorthW, camEastW, camSouthW, camWestW]
 
 # utilities
