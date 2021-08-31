@@ -46,7 +46,7 @@ class Wall(object):
         angle = camPos.facing - self.pos.facing
         angle = angle % 4
 
-        if (row > 2 and not angle == 2) or (col < 0 and not angle == 1) or (col > 2 and not angle == 3) or (row < 0):
+        if (row > 2 and not angle == 2) or (col < 0 and not angle == 1) or (col > 2 and not angle == 3) or (row < 0 and not angle == 2):
             empty = pygame.Surface((1,1))
             empty.set_colorkey((0,0,0))
             return (empty, 10)
@@ -57,10 +57,16 @@ class Wall(object):
             r1 = row
             c1 = col + 1
         elif angle == 1:
-            r0 = row + 1
-            c0 = col + 1
-            r1 = row
-            c1 = col + 1
+            if col < 1:
+                r0 = row
+                c0 = col + 1
+                r1 = row + 1
+                c1 = col + 1
+            else:
+                r1 = row
+                c1 = col + 1
+                r0 = row + 1
+                c0 = col + 1
             level -= 0.25
             if col == 1 or col == 2:
                 level -= 0.5
@@ -71,13 +77,21 @@ class Wall(object):
             c1 = col + 1
             level -= 1
         elif angle == 3:
-            r0 = row
-            c0 = col
-            r1 = row + 1
-            c1 = col
+            if col < 2:
+                r0 = row
+                c0 = col
+                r1 = row + 1
+                c1 = col
+            else:
+                r1 = row
+                c1 = col
+                r0 = row + 1
+                c0 = col
             level -= 0.25
             if col == 1 or col == 2:
                 level -= 0.5
+
+        print(str((r0,c0)) + " " + str((r1,c1)))
 
         result = transform.wall_transform(self.image, (cRows[r0], cRows[r1], fRows[r0], fRows[r1]), (xCols[r0][c0], xCols[r1][c1]))
         result.set_colorkey((0,0,0))
