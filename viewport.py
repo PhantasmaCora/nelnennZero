@@ -54,7 +54,7 @@ class CameraViewport(Viewport):
         ls2 = []
         for wall in ls:
             ls2.append(wall.getView(self.mapPos))
-        ls2.sort(key=lambda tup: -1 * tup[1]) # sort by z-level, putting furthest away at start of list
+        ls2.sort(key=lambda tup: tup[1]) # sort by z-level, putting furthest away at start of list
         for tup in ls2:
             self.rendersurf.blit(tup[0], (0,0))
 

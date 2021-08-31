@@ -31,7 +31,8 @@ theMap.setFloors([f0, f1, f2, f3, f4, f5, f6, f7, f8])
 
 wall = pygame.image.load("textures/wallBrick.png")
 w0 = map.Wall(wall, map.MapPos(theMap, (12, 20), 2))
-theMap.addWalls([w0])
+w1 = map.Wall(wall, map.MapPos(theMap, (12, 20), 3))
+theMap.addWalls([w0, w1])
 
 vp = viewport.CameraViewport(thePos)
 vh = viewport.ViewHolder(1, (0,0), vp, 0)
