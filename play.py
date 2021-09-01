@@ -29,7 +29,7 @@ f7 = map.Floor(grass, map.MapPos(theMap, (11, 22), 0))
 f8 = map.Floor(grass, map.MapPos(theMap, (13, 20), 0))
 theMap.setFloors([f0, f1, f2, f3, f4, f5, f6, f7, f8])
 
-wall = pygame.image.load("textures/wallBrick.png")
+wall = pygame.image.load("textures/wallMountain.png")
 w0 = map.Wall(wall, map.MapPos(theMap, (12, 20), 2))
 w1 = map.Wall(wall, map.MapPos(theMap, (12, 20), 3))
 theMap.addWalls([w0, w1])
