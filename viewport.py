@@ -36,7 +36,7 @@ class CameraViewport(Viewport):
             pass
         else:
             self.cachePos = copy.copy(self.mapPos) # mark this as new cache position
-            print("new cache")
+            #print("new cache")
             self.cached = self.rendersurf.copy()
             # draw floors and ceilings
             for offset in camZone[self.mapPos.facing]:
