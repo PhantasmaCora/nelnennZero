@@ -35,16 +35,16 @@ class Wall(object):
         row = 0
         col = 0
         if camPos.facing == 0:
-            row = camPos.xy[1] - self.pos.xy[1] - 1
+            row = camPos.xy[1] - self.pos.xy[1]
             col = self.pos.xy[0] - camPos.xy[0] + 1
         elif camPos.facing == 1:
-            row = self.pos.xy[0] - camPos.xy[0] - 1
+            row = self.pos.xy[0] - camPos.xy[0]
             col = self.pos.xy[1] - camPos.xy[1] + 1
         elif camPos.facing == 2:
-            row = self.pos.xy[1] - camPos.xy[1] - 1
+            row = self.pos.xy[1] - camPos.xy[1]
             col = camPos.xy[0] - self.pos.xy[0] + 1
         elif camPos.facing == 3:
-            row = camPos.xy[0] - self.pos.xy[0] - 1
+            row = camPos.xy[0] - self.pos.xy[0]
             col = camPos.xy[1] - self.pos.xy[1] + 1
 
         level = row
@@ -91,7 +91,7 @@ class Wall(object):
             if col == 1 or col == 2:
                 level -= 0.5
 
-        if c0 < 0 or c0 > 3 or c1 < 0 or c1 > 3 or r0 < 0 or r0 > 3 or r1 < 0 or r1 > 3:
+        if c0 < 0 or c0 > 3 or c1 < 0 or c1 > 3 or r0 < 0 or r0 > 4 or r1 < 0 or r1 > 4 or (r0 < 1 and r1 < 1):
             empty = pygame.Surface((1,1))
             empty.set_colorkey((0,0,0))
             return (empty, 10)
@@ -99,6 +99,13 @@ class Wall(object):
         # print(str((r0,c0)) + " " + str((r1,c1)))
 
         result = transform.wall_transform(self.image, (cRows[r0], cRows[r1], fRows[r0], fRows[r1]), (xCols[r0][c0], xCols[r1][c1]))
+        if r0 == 0 and c0 == 1:
+            result.fill((1,1,1), pygame.Rect(0, 0, xCols[0][1], 512))
+        if r1 == 0 and c1 == 2:
+            r2 = pygame.Surface((512,512))
+            r2.fill((1,1,1))
+            r2.blit(result, (0,0))
+            result = r2
         result.set_colorkey((0,0,0))
         return (result, level)
 
@@ -113,16 +120,16 @@ class Floor(object):
         row = 0
         col = 0
         if camPos.facing == 0:
-            row = camPos.xy[1] - self.pos.xy[1] - 1
+            row = camPos.xy[1] - self.pos.xy[1]
             col = self.pos.xy[0] - camPos.xy[0] + 1
         elif camPos.facing == 1:
-            row = self.pos.xy[0] - camPos.xy[0] - 1
+            row = self.pos.xy[0] - camPos.xy[0]
             col = self.pos.xy[1] - camPos.xy[1] + 1
         elif camPos.facing == 2:
-            row = self.pos.xy[1] - camPos.xy[1] - 1
+            row = self.pos.xy[1] - camPos.xy[1]
             col = camPos.xy[0] - self.pos.xy[0] + 1
         elif camPos.facing == 3:
-            row = camPos.xy[0] - self.pos.xy[0] - 1
+            row = camPos.xy[0] - self.pos.xy[0]
             col = camPos.xy[1] - self.pos.xy[1] + 1
 
         img = self.image
@@ -145,16 +152,16 @@ class Ceiling(object):
         row = 0
         col = 0
         if camPos.facing == 0:
-            row = camPos.xy[1] - self.pos.xy[1] - 1
+            row = camPos.xy[1] - self.pos.xy[1]
             col = self.pos.xy[0] - camPos.xy[0] + 1
         elif camPos.facing == 1:
-            row = self.pos.xy[0] - camPos.xy[0] - 1
+            row = self.pos.xy[0] - camPos.xy[0]
             col = self.pos.xy[1] - camPos.xy[1] + 1
         elif camPos.facing == 2:
-            row = self.pos.xy[1] - camPos.xy[1] - 1
+            row = self.pos.xy[1] - camPos.xy[1]
             col = camPos.xy[0] - self.pos.xy[0] + 1
         elif camPos.facing == 3:
-            row = camPos.xy[0] - self.pos.xy[0] - 1
+            row = camPos.xy[0] - self.pos.xy[0]
             col = camPos.xy[1] - self.pos.xy[1] + 1
 
         img = self.image

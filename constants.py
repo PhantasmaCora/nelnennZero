@@ -41,9 +41,10 @@ clock = pygame.time.Clock()
 pygame.mixer.init()
 
 # Grid Reference
-cRows = (66, 100, 124, 142) # ceiling close -> far
-fRows = (444, 410, 386, 368) # floor close -> far
+cRows = (0, 66, 100, 124, 142) # ceiling close -> far
+fRows = (512, 444, 410, 386, 368) # floor close -> far
 xCols = (
+ (-50, 144, 366, 560), # behind you!
  (2, 170, 340, 510), # closest row
  (48, 186, 324, 462), # second row
  (80, 196, 314, 430), # third row

@@ -62,6 +62,8 @@ while True:
                 result = thePos.map.attemptMove(thePos)
                 thePos = result[0]
                 vp.mapPos = thePos
+        elif event.type == VIDEORESIZE:
+            vh.autoScaleCenter()
 
     DISPLAYSURF.fill((0,0,0))
 
