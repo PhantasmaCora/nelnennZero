@@ -4,6 +4,8 @@ A small game, serving as a prequel to my larger planned game Nelnenn, a way to l
 Going for a walk one evening, you decide to explore a cavern...
 What you will find in it's depths may surprise you
 
+Built on the PyGame library for Python.
+
 Features:
 - first person perspective with "faked 3D" using pre-scripted geometric distortions of flat images
 - several maps to explore
