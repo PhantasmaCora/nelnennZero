@@ -10,29 +10,9 @@ from constants import *
 import map
 import viewport
 
-theMap = map.Map((24, 24))
-thePos = map.MapPos(theMap, [12, 23], 0)
-
-tile = pygame.image.load("textures/floorBrick.png")
-grass = pygame.image.load("textures/floorGrass.png")
-end = pygame.image.load("textures/floorPathEnd.png")
-turn = pygame.image.load("textures/floorPathTurn.png")
-straight = pygame.image.load("textures/floorPathLine.png")
-f0 = map.Floor(tile, map.MapPos(theMap, (12, 20), 0))
-f1 = map.Floor(turn, map.MapPos(theMap, (11, 21), 2), True)
-f2 = map.Floor(end, map.MapPos(theMap, (11, 20), 2), True)
-f3 = map.Floor(straight, map.MapPos(theMap, (12, 21), 1), True)
-f4 = map.Floor(turn, map.MapPos(theMap, (13, 21), 0), True)
-f5 = map.Floor(tile, map.MapPos(theMap, (12, 22), 0))
-f6 = map.Floor(end, map.MapPos(theMap, (13, 22), 0), True)
-f7 = map.Floor(grass, map.MapPos(theMap, (11, 22), 0))
-f8 = map.Floor(grass, map.MapPos(theMap, (13, 20), 0))
-theMap.setFloors([f0, f1, f2, f3, f4, f5, f6, f7, f8])
-
-wall = pygame.image.load("textures/wallMountain.png")
-w0 = map.Wall(wall, map.MapPos(theMap, (12, 20), 2))
-w1 = map.Wall(wall, map.MapPos(theMap, (12, 20), 3))
-theMap.addWalls([w0, w1])
+import mapData
+theMap = mapData.makeMap0()
+thePos = map.MapPos(theMap, [4, 23], 0)
 
 vp = viewport.CameraViewport(thePos)
 vh = viewport.ViewHolder(1, (0,0), vp, 0)
@@ -61,6 +41,7 @@ while True:
             elif event.key == K_UP:
                 result = thePos.map.attemptMove(thePos)
                 thePos = result[0]
+                #print(str(thePos.xy))
                 vp.mapPos = thePos
         elif event.type == VIDEORESIZE:
             vh.autoScaleCenter()

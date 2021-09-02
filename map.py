@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import sys
 import math
-import pygame
 import copy
 
 from constants import *
@@ -20,11 +19,33 @@ class MapPos(object):
         return (self.map == other.map and self.xy[0] == other.xy[0] and self.xy[1] == other.xy[1] and self.facing == other.facing)
 
 class Wall(object):
-    def __init__(self, image, pos, viewOffFacing = True, passable = False):
+    def __init__(self, pos, image = errorTile, imageName = "textures/errorTile.png", viewOffFacing = True, passable = False, seeThrough = False):
         self.image = image
+        self.imageName = imageName
         self.pos = pos
         self.passable = passable
+        self.seeThrough = seeThrough
         self.vof = viewOffFacing
+
+    # config = dict w/ kwargs
+    @classmethod
+    def make(cls, pos, config):
+        return cls(pos, **config)
+
+    # from a wall plan dict
+    @classmethod
+    def fromPlan(cls, pos, plan):
+        import pygame
+        plan["image"] = pygame.image.load(plan["imageName"])
+        return cls.make(pos, plan)
+
+    def toPlan(self):
+        plan = dict()
+        plan["imageName"] = self.imageName
+        plan["passable"] = self.passable
+        plan["viewOffFacing"] = self.vof
+        plan["seeThrough"] = self.seeThrough
+        return plan
 
     def getView(self, camPos):
         if self.pos.facing != camPos.facing and not self.vof:
@@ -47,7 +68,7 @@ class Wall(object):
             row = camPos.xy[0] - self.pos.xy[0]
             col = camPos.xy[1] - self.pos.xy[1] + 1
 
-        level = row
+        level = -row
         angle = camPos.facing - self.pos.facing
         angle = angle % 4
 
@@ -99,9 +120,9 @@ class Wall(object):
         # print(str((r0,c0)) + " " + str((r1,c1)))
 
         result = transform.wall_transform(self.image, (cRows[r0], cRows[r1], fRows[r0], fRows[r1]), (xCols[r0][c0], xCols[r1][c1]))
-        if r0 == 0 and c0 == 1:
+        if r0 == 0 and c0 == 1 and not self.seeThrough:
             result.fill((1,1,1), pygame.Rect(0, 0, xCols[0][1], 512))
-        if r1 == 0 and c1 == 2:
+        if r1 == 0 and c1 == 2 and not self.seeThrough:
             r2 = pygame.Surface((512,512))
             r2.fill((1,1,1))
             r2.blit(result, (0,0))
@@ -109,12 +130,47 @@ class Wall(object):
         result.set_colorkey((0,0,0))
         return (result, level)
 
-class Floor(object):
-    def __init__(self, image, pos, rotate = False, passable = True):
+class Horizontal(object):
+    def __init__(self, pos, image = errorTile, imageName = "textures/errorTile.png", rotate = False, passable = True):
         self.image = image
+        self.imageName = imageName
         self.pos = pos
         self.passable = passable
         self.rotate = rotate
+
+    # config = dict w/ kwargs
+    @classmethod
+    def make(cls, pos, config):
+        return cls(pos, **config)
+
+    # from a horizontal plan dict
+    @classmethod
+    def fromPlan(cls, pos, plan):
+        import pygame
+        plan["image"] = pygame.image.load(plan["imageName"])
+        if "specRotation" in plan:
+            pos.facing = plan["specRotation"]
+        if plan["type"] == "f":
+            return Floor.make(pos, plan)
+        elif plan["type"] == "c":
+            return Ceiling.make(pos, plan)
+        else:
+            print("invalid horizontal plan type!!")
+
+    def toPlan(self):
+        plan = dict()
+        plan["imageName"] = self.imageName
+        plan["passable"] = self.passable
+        plan["rotate"] = self.rotate
+        if plan["rotate"]:
+            plan["specRotation"] = self.pos.facing
+        if isinstance(self, Floor):
+            plan["type"] = "f"
+        elif isinstance(self, Ceiling):
+            plan["type"] = "c"
+        else:
+            print("Horizontal object should never be used directly, only through it's subclasses!")
+        return plan
 
     def getView(self, camPos):
         row = 0
@@ -137,47 +193,31 @@ class Floor(object):
             angle = self.pos.facing - camPos.facing
             angle *= -90
             img = pygame.transform.rotate(self.image, angle)
-        result = transform.floor_transform(img, (xCols[row + 1][col], xCols[row + 1][col + 1], xCols[row][col], xCols[row][col + 1]), (fRows[row + 1], fRows[row]))
+        result = self.properTransform(img, row, col)
         result.set_colorkey((0,0,0))
         return result
 
-class Ceiling(object):
-    def __init__(self, image, pos, rotate = False, passable = True):
-        self.image = image
-        self.pos = pos
-        self.passable = passable
-        self.rotate = rotate
+    # should never be used
+    def properTransform(self, img, row, col):
+        print("warning: 'Horizontal' class should never be directly used, only it's subclasses")
+        return img
 
-    def getView(self, camPos):
-        row = 0
-        col = 0
-        if camPos.facing == 0:
-            row = camPos.xy[1] - self.pos.xy[1]
-            col = self.pos.xy[0] - camPos.xy[0] + 1
-        elif camPos.facing == 1:
-            row = self.pos.xy[0] - camPos.xy[0]
-            col = self.pos.xy[1] - camPos.xy[1] + 1
-        elif camPos.facing == 2:
-            row = self.pos.xy[1] - camPos.xy[1]
-            col = camPos.xy[0] - self.pos.xy[0] + 1
-        elif camPos.facing == 3:
-            row = camPos.xy[0] - self.pos.xy[0]
-            col = camPos.xy[1] - self.pos.xy[1] + 1
+class Floor(Horizontal):
+    def properTransform(self, img, row, col):
+        #print("transformed")
+        return transform.floor_transform(img, (xCols[row + 1][col], xCols[row + 1][col + 1], xCols[row][col], xCols[row][col + 1]), (fRows[row + 1], fRows[row]))
 
-        img = self.image
-        if self.rotate:
-            angle = self.pos.facing - camPos.facing
-            angle *= -90
-            img = pygame.transform.rotate(self.image, angle)
-        result = transform.floor_transform(img, (xCols[row + 1][col], xCols[row + 1][col + 1], xCols[row][col], xCols[row][col + 1]), (cRows[row], cRows[row + 1]))
-        result.set_colorkey((0,0,0))
-        return result
+class Ceiling(Horizontal):
+    def properTransform(self, img, row, col):
+        return transform.floor_transform(img, (xCols[row + 1][col], xCols[row + 1][col + 1], xCols[row][col], xCols[row][col + 1]), (cRows[row], cRows[row + 1]))
 
 class Map(object):
-    def __init__(self, size):
+    def __init__(self, size, name):
+        self.size = size
         self.floors = [[None for n in range(size[0])] for n in range(size[1])]
         self.ceils = [[None for n in range(size[0])] for n in range(size[1])]
         self.walls = dict()
+        self.name = name
 
     def setFloor(self, floor):
         pos = floor.pos

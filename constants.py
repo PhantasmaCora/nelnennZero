@@ -36,6 +36,9 @@ pygame.display.set_caption('Nelnenn Zero')
 lanternImg = pygame.image.load("textures/lantern.png")
 lanternImg.convert_alpha()
 
+errorTile = pygame.image.load("textures/errorTile.png")
+errorTile.convert()
+
 # Important???
 clock = pygame.time.Clock()
 pygame.mixer.init()
