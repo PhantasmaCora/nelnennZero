@@ -19,13 +19,13 @@ class MapPos(object):
         return (self.map == other.map and self.xy[0] == other.xy[0] and self.xy[1] == other.xy[1] and self.facing == other.facing)
 
 class Wall(object):
-    def __init__(self, pos, image = errorTile, imageName = "textures/errorTile.png", viewOffFacing = True, passable = False, seeThrough = False):
-        self.image = image
-        self.imageName = imageName
+    def __init__(self, pos, **kwargs):
         self.pos = pos
-        self.passable = passable
-        self.seeThrough = seeThrough
-        self.vof = viewOffFacing
+        self.image = kwargs["image"]
+        self.imageName = kwargs["imageName"]
+        self.passable = kwargs["passable"]
+        self.seeThrough = kwargs["seeThrough"]
+        self.vof = kwargs["viewOffFacing"]
 
     # config = dict w/ kwargs
     @classmethod
@@ -131,12 +131,12 @@ class Wall(object):
         return (result, level)
 
 class Horizontal(object):
-    def __init__(self, pos, image = errorTile, imageName = "textures/errorTile.png", rotate = False, passable = True):
-        self.image = image
-        self.imageName = imageName
+    def __init__(self, pos, **kwargs):
         self.pos = pos
-        self.passable = passable
-        self.rotate = rotate
+        self.image = kwargs["image"]
+        self.imageName = kwargs["imageName"]
+        self.passable = kwargs["passable"]
+        self.rotate = kwargs["rotate"]
 
     # config = dict w/ kwargs
     @classmethod
@@ -234,13 +234,13 @@ class Map(object):
             return None
         return floor
 
-    def setCeiling(self, ceil):
+    def setCeil(self, ceil):
         pos = ceil.pos
         self.ceils[pos.xy[0]][pos.xy[1]] = ceil
 
-    def setCeilings(self, ceilList):
+    def setCeils(self, ceilList):
         for f in ceilList:
-            self.setCeiling(f)
+            self.setCeil(f)
 
     def getCeiling(self, pos):
         try:

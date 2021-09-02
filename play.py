@@ -10,8 +10,10 @@ from constants import *
 import map
 import viewport
 
-import mapData
-theMap = mapData.makeMap0()
+import mapStorage
+
+#theMap = mapData.makeMap0()
+theMap = mapStorage.loadPickle("maps/Surface.nzmp")
 thePos = map.MapPos(theMap, [4, 23], 0)
 
 vp = viewport.CameraViewport(thePos)

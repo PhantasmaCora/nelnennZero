@@ -267,6 +267,18 @@ def makeMap0():
 
         {"pos": map.MapPos(theMap, (18,2), 2), "config": wbrk},
         {"pos": map.MapPos(theMap, (18,2), 0), "config": wbrk},
+
+        {"pos": map.MapPos(theMap, (19,6), 3), "config": wbrk},
+
+        {"pos": map.MapPos(theMap, (20,7), 2), "config": wbrk},
+        {"pos": map.MapPos(theMap, (20,7), 3), "config": wbrk},
+
+        {"pos": map.MapPos(theMap, (20,8), 3), "config": wbrk},
+
+        {"pos": map.MapPos(theMap, (20,9), 3), "config": wbrk},
+        {"pos": map.MapPos(theMap, (20,9), 0), "config": wbrk},
+
+        {"pos": map.MapPos(theMap, (19,10), 3), "config": wbrk},
     ]
 
     for y in range(8,15):

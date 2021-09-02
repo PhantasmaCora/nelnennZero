@@ -1,6 +1,5 @@
 import sys
 import math
-import pickle
 import os
 
 import map
@@ -64,7 +63,7 @@ def storeMap(map):
 
     return mh
 
-def unstoreMap(mh):
+def loadMap(mh):
     theMap = map.Map(mh.size, mh.name)
 
     floorLs = []
@@ -91,3 +90,9 @@ def unstoreMap(mh):
     theMap.addWalls(wallLs)
 
     return theMap
+
+def loadPickle(filepath):
+    import pickle
+    with open(filepath, 'rb') as fp:
+        ms = pickle.load(fp)
+    return loadMap(ms)
