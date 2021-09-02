@@ -39,6 +39,11 @@ lanternImg.convert_alpha()
 errorTile = pygame.image.load("textures/errorTile.png")
 errorTile.convert()
 
+noise = pygame.image.load("textures/noiseBlue.png")
+noise.convert()
+noise.set_alpha(16)
+noise = pygame.transform.scale(noise, (512, 512))
+
 # Important???
 clock = pygame.time.Clock()
 pygame.mixer.init()

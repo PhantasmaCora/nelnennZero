@@ -29,7 +29,7 @@ class CameraViewport(Viewport):
         self.cachePos = map.MapPos(mapPos.map, (-1,-1), -1)
         self.mapPos = mapPos
 
-    def draw(self, lf):
+    def draw(self, lf, nf):
         self.rendersurf.fill((0,0,0))
         # check whether cached terrain images are still correct
         if self.mapPos == self.cachePos:
@@ -69,6 +69,14 @@ class CameraViewport(Viewport):
         # blit terrain cache to rendering surface
         self.rendersurf.blit(self.cached, (0,0))
 
+        # blit non-static sprites
+
+        # add noise layer
+        self.rendersurf.blit(noise, (-nf[0], -nf[1]))
+        self.rendersurf.blit(noise, (-nf[0] + 512, -nf[1]))
+        self.rendersurf.blit(noise, (-nf[0], -nf[1] + 512))
+        self.rendersurf.blit(noise, (-nf[0] + 512, -nf[1] + 512))
+
         # final step - render lantern darkness
         dark = pygame.transform.smoothscale(lanternImg, (round(640 * lf), round(640 * lf)))
         lanternPos = (512 - round(640 * lf)) / 2
@@ -83,8 +91,8 @@ class ViewHolder(object):
         self.layer = layer
         self.scaled = pygame.Surface((self.viewport.size[0] * self.scale, self.viewport.size[1] * self.scale))
 
-    def draw(self, lf):
-        self.viewport.draw(lf)
+    def draw(self, lf, nf):
+        self.viewport.draw(lf, nf)
         img = self.viewport.getRenderSurf().convert()
         pygame.transform.smoothscale(img, (round(self.viewport.size[0] * self.scale), round(self.viewport.size[1] * self.scale)), self.scaled)
         final = defaultPalette(self.scaled)
@@ -118,6 +126,6 @@ class ViewLayout(object):
     def __init__(self, vhs):
         self.viewholds = vhs
 
-    def draw(self, lf):
+    def draw(self, lf, nf):
         for vh in self.viewholds:
-            vh.draw(lf)
+            vh.draw(lf, nf)

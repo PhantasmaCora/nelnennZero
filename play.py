@@ -20,6 +20,7 @@ vh.autoScaleCenter()
 layout = viewport.ViewLayout([vh])
 
 lampFactor = 0
+noisePos = [0,0]
 
 while True:
     # event handler (player inputs)
@@ -52,6 +53,17 @@ while True:
     lampFactor += f ** 3
     lampScale = 0.05 * math.sin(lampFactor) + 1
 
-    layout.draw(lampScale)
+    noisePos[0] += round(20 * random.random()) - 10
+    noisePos[1] += round(20 * random.random()) - 10
+    if noisePos[0] > 255:
+        noisePos[0] = 0
+    if noisePos[0] < 0:
+        noisePos[0] = 255
+    if noisePos[1] > 255:
+        noisePos[1] = 0
+    if noisePos[1] < 0:
+        noisePos[1] = 255
+
+    layout.draw(lampScale, noisePos)
     pygame.display.update()
     clock.tick(FPS)
