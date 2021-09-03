@@ -42,7 +42,7 @@ errorTile.convert()
 noise = pygame.image.load("textures/noiseBlue.png")
 noise.convert()
 noise.set_alpha(16)
-noise = pygame.transform.scale(noise, (512, 512))
+noise = pygame.transform.smoothscale(noise, (1024, 1024))
 
 # Important???
 clock = pygame.time.Clock()

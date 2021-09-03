@@ -73,9 +73,12 @@ class CameraViewport(Viewport):
 
         # add noise layer
         self.rendersurf.blit(noise, (-nf[0], -nf[1]))
-        self.rendersurf.blit(noise, (-nf[0] + 512, -nf[1]))
-        self.rendersurf.blit(noise, (-nf[0], -nf[1] + 512))
-        self.rendersurf.blit(noise, (-nf[0] + 512, -nf[1] + 512))
+        if nf[0] > 1024 - 512:
+            self.rendersurf.blit(noise, (-nf[0] + 1024, -nf[1]))
+        if nf[1] > 1024 - 512:
+            self.rendersurf.blit(noise, (-nf[0], -nf[1] + 1024))
+        if nf[1] > 1024 - 512 and nf[0] > 1024 - 512:
+            self.rendersurf.blit(noise, (-nf[0] + 1024, -nf[1] + 1024))
 
         # final step - render lantern darkness
         dark = pygame.transform.smoothscale(lanternImg, (round(640 * lf), round(640 * lf)))
