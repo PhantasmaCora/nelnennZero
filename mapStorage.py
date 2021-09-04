@@ -4,6 +4,7 @@ import os
 
 import map
 import mapData
+import gameObj
 
 class NelMapHolder(object):
     def __init__(self, name, size):
@@ -13,6 +14,7 @@ class NelMapHolder(object):
         self.floors = [[None for n in range(size[0])] for n in range(size[1])]
         self.ceils = [[None for n in range(size[0])] for n in range(size[1])]
         self.walls = dict()
+        self.objects = dict()
         self.plans = None
 
 def storeMap(map):
@@ -59,13 +61,22 @@ def storeMap(map):
                 mh.walls[(wall.pos.xy[0], wall.pos.xy[1], wall.pos.facing)] = len(wallPlans)
                 wallPlans.append(thePlan)
 
-    mh.plans = (floorPlans, ceilPlans, wallPlans)
+    # store objects
+    panePlans = []
+    for key in map.allObjects:
+        obj = map.allObjects[key]
+        tup = obj.toPlan(panePlans)
+        mh.objects[(obj.pos.xy[0], obj.pos.xy[1], obj.pos.facing)] = tup[0]
+        panePlans = tup[1]
+
+    mh.plans = (floorPlans, ceilPlans, wallPlans, panePlans)
 
     return mh
 
 def loadMap(mh):
     theMap = map.Map(mh.size, mh.name)
 
+    # load floors
     floorLs = []
     for x, col in enumerate(mh.floors):
         for y, floor in enumerate(col):
@@ -74,6 +85,7 @@ def loadMap(mh):
 
     theMap.setFloors(floorLs)
 
+    # load ceilings
     ceilLs = []
     for x, col in enumerate(mh.ceils):
         for y, ceil in enumerate(col):
@@ -82,12 +94,21 @@ def loadMap(mh):
 
     theMap.setCeils(ceilLs)
 
+    # load walls
     wallLs = []
     for key in mh.walls:
         pos = map.MapPos(theMap, (key[0], key[1]), key[2])
         wallLs.append(map.Wall.fromPlan(pos, mh.plans[2][mh.walls[key]]))
 
     theMap.addWalls(wallLs)
+
+    # load objects
+    objLs = []
+    for key in mh.objects:
+        pos = map.MapPos(theMap, (key[0], key[1]), key[2])
+        objLs.append(gameObj.GameObject.fromPlan(pos, mh.objects[key], mh.plans[3]))
+
+    theMap.addObjs(objLs)
 
     return theMap
 

@@ -6,6 +6,8 @@ import copy
 
 from constants import *
 
+import gameObj
+
 class Viewport(object):
     def __init__(self, size):
         self.size = size
@@ -29,12 +31,28 @@ class CameraViewport(Viewport):
         self.cachePos = map.MapPos(mapPos.map, (-1,-1), -1)
         self.mapPos = mapPos
 
-    def draw(self, lf, nf):
+        self.lampFactor = 0
+        self.noisePos = [0,0]
+
+    def update(self):
+        f = random.random() / 2
+        self.lampFactor += f ** 3
+
+        self.noisePos[0] += (round(20 * random.random()) - 10) * 4
+        self.noisePos[1] += (round(20 * random.random()) - 10) * 4
+        if self.noisePos[0] > 1023:
+            self.noisePos[0] = 0
+        if self.noisePos[0] < 0:
+            self.noisePos[0] = 1023
+        if self.noisePos[1] > 1023:
+            self.noisePos[1] = 0
+        if self.noisePos[1] < 0:
+            self.noisePos[1] = 1023
+
+    def draw(self):
         self.rendersurf.fill((0,0,0))
         # check whether cached terrain images are still correct
-        if self.mapPos == self.cachePos:
-            pass
-        else:
+        if not self.mapPos == self.cachePos:
             self.cachePos = copy.copy(self.mapPos) # mark this as new cache position
             #print("new cache")
             self.cached = self.rendersurf.copy()
@@ -50,18 +68,22 @@ class CameraViewport(Viewport):
                 if cl != None:
                     self.cached.blit(cl.getView(self.mapPos), (0,0))
 
-            # draw walls
-            # 1. acquire walls to list
+            # draw walls and static object panes
+            # 1. acquire panes to list
             ls = []
             for offset in camZoneWall[self.mapPos.facing]:
                 pos = [self.mapPos.xy[0], self.mapPos.xy[1]]
                 pos[0] += offset[0]
                 pos[1] += offset[1]
+                try:
+                    ls.extend(self.mapPos.map.staticObjects[tuple(pos)].panes)
+                except KeyError:
+                    pass
                 ls.extend(self.mapPos.map.getWalls(tuple(pos)))
-            # 2. acquire images from walls
+            # 2. acquire images from panes
             ls2 = []
-            for wall in ls:
-                ls2.append(wall.getView(self.mapPos))
+            for pane in ls:
+                ls2.append(pane.getView(self.mapPos))
             ls2.sort(key=lambda tup: tup[1]) # sort by z-level, putting furthest away at start of list
             for tup in ls2:
                 self.cached.blit(tup[0], (0,0))
@@ -69,20 +91,43 @@ class CameraViewport(Viewport):
         # blit terrain cache to rendering surface
         self.rendersurf.blit(self.cached, (0,0))
 
-        # blit non-static sprites
+        # blit non-static objects (and obscuring walls)
+        # 1. acquire panes to list
+        ls = []
+        for offset in camZoneWall[self.mapPos.facing]:
+            pos = [self.mapPos.xy[0], self.mapPos.xy[1]]
+            pos[0] += offset[0]
+            pos[1] += offset[1]
+            try:
+                ls.extend(self.mapPos.map.allObjects[tuple(pos)].panes)
+            except KeyError:
+                pass
+            ls.extend(self.mapPos.map.getWalls(tuple(pos)))
+        # 2. acquire images from panes. redraw only walls that may cover an object.
+        ls2 = []
+        draw = False
+        for pane in ls:
+            if not draw and isinstance(pane, gameObj.ObjectPane):
+                draw = True
+            if draw:
+                ls2.append(pane.getView(self.mapPos))
+        ls2.sort(key=lambda tup: tup[1]) # sort by z-level, putting furthest away at start of list
+        for tup in ls2:
+            self.cached.blit(tup[0], (0,0))
 
         # add noise layer
-        self.rendersurf.blit(noise, (-nf[0], -nf[1]))
-        if nf[0] > 1024 - 512:
-            self.rendersurf.blit(noise, (-nf[0] + 1024, -nf[1]))
-        if nf[1] > 1024 - 512:
-            self.rendersurf.blit(noise, (-nf[0], -nf[1] + 1024))
-        if nf[1] > 1024 - 512 and nf[0] > 1024 - 512:
-            self.rendersurf.blit(noise, (-nf[0] + 1024, -nf[1] + 1024))
+        self.rendersurf.blit(noise, (-self.noisePos[0], -self.noisePos[1]))
+        if self.noisePos[0] > 1024 - 512:
+            self.rendersurf.blit(noise, (-self.noisePos[0] + 1024, -self.noisePos[1]))
+        if self.noisePos[1] > 1024 - 512:
+            self.rendersurf.blit(noise, (-self.noisePos[0], -self.noisePos[1] + 1024))
+        if self.noisePos[1] > 1024 - 512 and self.noisePos[0] > 1024 - 512:
+            self.rendersurf.blit(noise, (-self.noisePos[0] + 1024, -self.noisePos[1] + 1024))
 
         # final step - render lantern darkness
-        dark = pygame.transform.smoothscale(lanternImg, (round(640 * lf), round(640 * lf)))
-        lanternPos = (512 - round(640 * lf)) / 2
+        lampScale = 0.05 * math.sin(self.lampFactor) + 1
+        dark = pygame.transform.smoothscale(lanternImg, (round(640 * lampScale), round(640 * lampScale)))
+        lanternPos = (512 - round(640 * lampScale)) / 2
         self.rendersurf.blit(dark, (lanternPos, lanternPos))
 
 
@@ -94,8 +139,8 @@ class ViewHolder(object):
         self.layer = layer
         self.scaled = pygame.Surface((self.viewport.size[0] * self.scale, self.viewport.size[1] * self.scale))
 
-    def draw(self, lf, nf):
-        self.viewport.draw(lf, nf)
+    def draw(self):
+        self.viewport.draw()
         img = self.viewport.getRenderSurf().convert()
         pygame.transform.smoothscale(img, (round(self.viewport.size[0] * self.scale), round(self.viewport.size[1] * self.scale)), self.scaled)
         final = defaultPalette(self.scaled)
@@ -129,6 +174,6 @@ class ViewLayout(object):
     def __init__(self, vhs):
         self.viewholds = vhs
 
-    def draw(self, lf, nf):
+    def draw(self):
         for vh in self.viewholds:
-            vh.draw(lf, nf)
+            vh.draw()

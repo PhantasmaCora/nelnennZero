@@ -3,20 +3,21 @@ import math
 import pygame
 
 import map
+import gameObj
 
 def makeMap0():
     theMap = map.Map((24, 24), "Surface")
 
     # floor configs
-    fgrs = { "imageName": "textures/floorGrass.png", "image": pygame.image.load("textures/floorGrass.png") }
-    fgpc = { "imageName": "textures/floorPathTurn.png", "image": pygame.image.load("textures/floorPathTurn.png"), "rotate": True }
-    fgpl = { "imageName": "textures/floorPathLine.png", "image": pygame.image.load("textures/floorPathLine.png"), "rotate": True }
-    fgpe = { "imageName": "textures/floorPathEnd.png", "image": pygame.image.load("textures/floorPathEnd.png"), "rotate": True }
+    fgrs = { "imageName": "textures/floorGrass.png" }
+    fgpc = { "imageName": "textures/floorPathTurn.png", "rotate": True }
+    fgpl = { "imageName": "textures/floorPathLine.png", "rotate": True }
+    fgpe = { "imageName": "textures/floorPathEnd.png", "rotate": True }
 
-    fgse = { "imageName": "textures/floorGrassStone.png", "image": pygame.image.load("textures/floorGrassStone.png"), "rotate": True }
-    fstn = { "imageName": "textures/floorStone.png", "image": pygame.image.load("textures/floorStone.png") }
-    fbrk = { "imageName": "textures/floorBrick.png", "image": pygame.image.load("textures/floorBrick.png") }
-    fbrs = { "imageName": "textures/floorBrickStair.png", "image": pygame.image.load("textures/floorBrickStair.png"), "rotate": True }
+    fgse = { "imageName": "textures/floorGrassStone.png", "rotate": True }
+    fstn = { "imageName": "textures/floorStone.png" }
+    fbrk = { "imageName": "textures/floorBrick.png" }
+    fbrs = { "imageName": "textures/floorBrickStair.png", "rotate": True }
 
     ls = [
         # hallway
@@ -189,18 +190,18 @@ def makeMap0():
 
     finFloorLs = []
     for d in ls:
-        flr = map.Floor.make(**d)
+        flr = map.Floor.make(d["pos"], d["config"])
         finFloorLs.append(flr)
 
     theMap.setFloors(finFloorLs)
 
     # wall configs
-    wbrk = {"imageName": "textures/wallBrick.png", "image": pygame.image.load("textures/wallBrick.png")}
-    wbsm = {"imageName": "textures/wallBrickStatMage.png", "image": pygame.image.load("textures/wallBrickStatMage.png")}
-    wbsl = {"imageName": "textures/wallBrickStatLampR.png", "image": pygame.image.load("textures/wallBrickStatLampR.png")}
-    wbpl = {"imageName": "textures/wallBrickPillars.png", "image": pygame.image.load("textures/wallBrickPillars.png"), "passable": True, "seeThrough": True}
-    wstn = {"imageName": "textures/wallStone.png", "image": pygame.image.load("textures/wallStone.png")}
-    wmtn = {"imageName": "textures/wallMountain.png", "image": pygame.image.load("textures/wallMountain.png")}
+    wbrk = {"imageName": "textures/wallBrick.png"}
+    wbsm = {"imageName": "textures/wallBrickStatMage.png"}
+    wbsl = {"imageName": "textures/wallBrickStatLampR.png"}
+    wbpl = {"imageName": "textures/wallBrickPillars.png", "passable": True, "seeThrough": True}
+    wstn = {"imageName": "textures/wallStone.png"}
+    wmtn = {"imageName": "textures/wallMountain.png"}
 
     ls = [
         {"pos": map.MapPos(theMap, (0,12), 2), "config": wmtn},
@@ -311,10 +312,15 @@ def makeMap0():
 
     finWallLs = []
     for d in ls:
-        flr = map.Wall.make(**d)
+        flr = map.Wall.make(d["pos"], d["config"])
         finWallLs.append(flr)
 
     theMap.addWalls(finWallLs)
+
+    panePlan = {"imageName": "textures/objTree.png", "shiftPercentage": 0.7, "viewOffFacing": False}
+    tree = gameObj.GameObject.foursider(map.MapPos(theMap, (2, 19), 0), panePlan = panePlan, passable = False)
+
+    theMap.addObj(tree)
 
     return theMap
 

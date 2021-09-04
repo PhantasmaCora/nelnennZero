@@ -8,6 +8,7 @@ import pygame
 from constants import *
 
 import map
+import gameObj
 import viewport
 
 import mapStorage
@@ -16,13 +17,13 @@ import mapStorage
 theMap = mapStorage.loadPickle("maps/Surface.nzmp")
 thePos = map.MapPos(theMap, [4, 23], 0)
 
+#wl = map.Wall(map.MapPos(theMap, (4, 21), 0), imageName = "textures/wallBrick.png", viewOffFacing = False)
+#theMap.addWall(wl)
+
 vp = viewport.CameraViewport(thePos)
 vh = viewport.ViewHolder(1, (0,0), vp, 0)
 vh.autoScaleCenter()
 layout = viewport.ViewLayout([vh])
-
-lampFactor = 0
-noisePos = [0,0]
 
 while True:
     # event handler (player inputs)
@@ -51,21 +52,8 @@ while True:
 
     DISPLAYSURF.fill((0,0,0))
 
-    f = random.random() / 2
-    lampFactor += f ** 3
-    lampScale = 0.05 * math.sin(lampFactor) + 1
+    vp.update()
 
-    noisePos[0] += (round(20 * random.random()) - 10) * 4
-    noisePos[1] += (round(20 * random.random()) - 10) * 4
-    if noisePos[0] > 1023:
-        noisePos[0] = 0
-    if noisePos[0] < 0:
-        noisePos[0] = 1023
-    if noisePos[1] > 1023:
-        noisePos[1] = 0
-    if noisePos[1] < 0:
-        noisePos[1] = 1023
-
-    layout.draw(lampScale, noisePos)
+    layout.draw()
     pygame.display.update()
     clock.tick(FPS)

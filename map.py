@@ -19,13 +19,13 @@ class MapPos(object):
         return (self.map == other.map and self.xy[0] == other.xy[0] and self.xy[1] == other.xy[1] and self.facing == other.facing)
 
 class Wall(object):
-    def __init__(self, pos, **kwargs):
+    def __init__(self, pos, imageName = "textures/errorTile.png", passable = False, seeThrough = False, viewOffFacing = True):
         self.pos = pos
-        self.image = kwargs["image"]
-        self.imageName = kwargs["imageName"]
-        self.passable = kwargs["passable"]
-        self.seeThrough = kwargs["seeThrough"]
-        self.vof = kwargs["viewOffFacing"]
+        self.imageName = imageName
+        self.image = pygame.image.load(self.imageName)
+        self.passable = passable
+        self.seeThrough = seeThrough
+        self.vof = viewOffFacing
 
     # config = dict w/ kwargs
     @classmethod
@@ -35,8 +35,6 @@ class Wall(object):
     # from a wall plan dict
     @classmethod
     def fromPlan(cls, pos, plan):
-        import pygame
-        plan["image"] = pygame.image.load(plan["imageName"])
         return cls.make(pos, plan)
 
     def toPlan(self):
@@ -88,9 +86,9 @@ class Wall(object):
                 c1 = col + 1
                 r0 = row + 1
                 c0 = col + 1
-            level -= 0.25
+            level -= 0.1
             if col == 1 or col == 2:
-                level -= 0.5
+                level -= 0.1
         elif angle == 2:
             r0 = row + 1
             c0 = col
@@ -108,9 +106,9 @@ class Wall(object):
                 c1 = col
                 r0 = row + 1
                 c0 = col
-            level -= 0.25
+            level -= 0.1
             if col == 1 or col == 2:
-                level -= 0.5
+                level -= 0.1
 
         if c0 < 0 or c0 > 3 or c1 < 0 or c1 > 3 or r0 < 0 or r0 > 4 or r1 < 0 or r1 > 4 or (r0 < 1 and r1 < 1):
             empty = pygame.Surface((1,1))
@@ -131,12 +129,13 @@ class Wall(object):
         return (result, level)
 
 class Horizontal(object):
-    def __init__(self, pos, **kwargs):
+    def __init__(self, pos, imageName = "textures/errorTile.png", passable = True, rotate = False):
         self.pos = pos
-        self.image = kwargs["image"]
-        self.imageName = kwargs["imageName"]
-        self.passable = kwargs["passable"]
-        self.rotate = kwargs["rotate"]
+        self.imageName = imageName
+        self.image = pygame.image.load(self.imageName)
+
+        self.passable = passable
+        self.rotate = rotate
 
     # config = dict w/ kwargs
     @classmethod
@@ -146,14 +145,16 @@ class Horizontal(object):
     # from a horizontal plan dict
     @classmethod
     def fromPlan(cls, pos, plan):
-        import pygame
-        plan["image"] = pygame.image.load(plan["imageName"])
-        if "specRotation" in plan:
-            pos.facing = plan["specRotation"]
-        if plan["type"] == "f":
-            return Floor.make(pos, plan)
-        elif plan["type"] == "c":
-            return Ceiling.make(pos, plan)
+        config = copy.copy(plan)
+        if "specRotation" in config:
+            pos.facing = config["specRotation"]
+            config.pop("specRotation")
+        if config["type"] == "f":
+            config.pop("type")
+            return Floor.make(pos, config)
+        elif config["type"] == "c":
+            config.pop("type")
+            return Ceiling.make(pos, config)
         else:
             print("invalid horizontal plan type!!")
 
@@ -219,6 +220,10 @@ class Map(object):
         self.walls = dict()
         self.name = name
 
+        self.allObjects = dict()
+        self.staticObjects = dict()
+        self.dynamicObjects = dict()
+
     def setFloor(self, floor):
         pos = floor.pos
         self.floors[pos.xy[0]][pos.xy[1]] = floor
@@ -266,6 +271,21 @@ class Map(object):
         except KeyError:
             return []
 
+    def addObj(self, obj):
+        if not obj.pos.xy in self.allObjects:
+            self.allObjects[obj.pos.xy] = obj
+            if obj.static:
+                self.staticObjects[obj.pos.xy] = obj
+            else:
+                self.dynamicObjects[obj.pos.xy] = obj
+            return True
+        else:
+            return False
+
+    def addObjs(self, ls):
+        for obj in ls:
+            self.addObj(obj)
+
     def attemptMove(self, entityPos):
         f = entityPos.facing
         tempPos = [entityPos.xy[0], entityPos.xy[1]]
@@ -287,5 +307,16 @@ class Map(object):
             if wall.passable == False and (wall.pos.facing - newPos.facing) % 4 == 0:
                 return (entityPos, "fail")
         # if newPos tile not passable return fail
+        floor = self.floors[newPos.xy[0]][newPos.xy[1]]
+        if floor != None and floor.passable == False:
+            return (entityPos, "fail")
+        # if newPos contains impassible object return fail
+        obj = None
+        try:
+            obj = self.allObjects[(newPos.xy[0], newPos.xy[1])]
+        except KeyError:
+            pass
+        if obj != None and obj.passable == False:
+            return (entityPos, "fail")
 
         return (newPos, "succeed")
