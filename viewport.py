@@ -130,21 +130,39 @@ class CameraViewport(Viewport):
         lanternPos = (512 - round(640 * lampScale)) / 2
         self.rendersurf.blit(dark, (lanternPos, lanternPos))
 
-
 class ViewHolder(object):
     def __init__(self, scale, pos, vp, layer):
         self.scale = scale
+        self.smallScale = 0.33333
         self.pos = pos
         self.viewport = vp
         self.layer = layer
-        self.scaled = pygame.Surface((self.viewport.size[0] * self.scale, self.viewport.size[1] * self.scale))
+        self.scaled = pygame.Surface( (round(self.viewport.size[0] * self.scale + self.scale / self.smallScale), round(self.viewport.size[1] * self.scale + self.scale / self.smallScale)) )
+
+        self.small = pygame.Surface((round(self.viewport.size[0] * self.smallScale) + 1, round(self.viewport.size[1] * self.smallScale) + 1))
+
+        self.shift = 0
+        self.intShift = 0
+        self.scaler = pygame.Surface((self.viewport.size[0] + round(1 / self.smallScale), self.viewport.size[1] + round(1 / self.smallScale)))
 
     def draw(self):
         self.viewport.draw()
-        img = self.viewport.getRenderSurf().convert()
-        pygame.transform.smoothscale(img, (round(self.viewport.size[0] * self.scale), round(self.viewport.size[1] * self.scale)), self.scaled)
-        final = defaultPalette(self.scaled)
-        final.blit(self.scaled, (0,0))
+        self.intShift += (random.random() - 0.5)
+        if random.random() > 0.95:
+            self.smallScale += (random.random() - 0.5) / 4
+            self.smallScale = clamp(self.smallScale, 0.2, 0.6)
+            self.small = pygame.Surface((round(self.viewport.size[0] * self.smallScale) + 1, round(self.viewport.size[1] * self.smallScale) + 1))
+            self.scaled = pygame.Surface((round(self.viewport.size[0] * self.scale + self.scale / self.smallScale), round(self.viewport.size[1] * self.scale + self.scale / self.smallScale)))
+        self.shift = round(self.intShift) % round(1 / self.smallScale)
+        self.scaler.blit(self.viewport.getRenderSurf(), (self.shift, self.shift))
+
+        pygame.transform.smoothscale(self.scaler, (round(self.viewport.size[0] * self.smallScale) + 1, round(self.viewport.size[1] * self.smallScale) + 1), self.small)
+
+        pygame.transform.smoothscale(self.small, (round(self.viewport.size[0] * self.scale + self.scale / self.smallScale), round(self.viewport.size[1] * self.scale + self.scale / self.smallScale)), self.scaled)
+
+        final = pygame.Surface((round(self.viewport.size[0] * self.scale), round(self.viewport.size[1] * self.scale)))
+        final = defaultPalette(final)
+        final.blit(self.scaled, (0,0), (self.shift, self.shift, final.get_rect().w, final.get_rect().h))
         DISPLAYSURF.blit(final, self.pos)
 
     def autoScaleCenter(self):
@@ -161,7 +179,7 @@ class ViewHolder(object):
             #print("taller")
             self.scale = H / self.viewport.size[1]
 
-        s = (self.viewport.size[0] * self.scale, self.viewport.size[1] * self.scale)
+        s = (round(self.viewport.size[0] * self.scale + self.scale / self.smallScale), round(self.viewport.size[1] * self.scale + self.scale / self.smallScale))
         self.scaled = pygame.Surface(s)
         self.pos = ((W - s[0]) / 2, (H - s[1]) / 2)
 
