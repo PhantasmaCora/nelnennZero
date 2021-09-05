@@ -14,7 +14,7 @@ import viewport
 import mapStorage
 
 #theMap = mapData.makeMap0()
-theMap = mapStorage.loadPickle("maps/Surface.nzmp")
+theMap = mapStorage.loadPickle("maps/surface.nzmp")
 thePos = map.MapPos(theMap, [4, 23], 0)
 
 #wl = map.Wall(map.MapPos(theMap, (4, 21), 0), imageName = "textures/wallBrick.png", viewOffFacing = False)

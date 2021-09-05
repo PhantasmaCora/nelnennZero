@@ -6,7 +6,7 @@ import map
 import gameObj
 
 def makeMap0():
-    theMap = map.Map((24, 24), "Surface")
+    theMap = map.Map((24, 24), "surface")
 
     # floor configs
     fgrs = { "imageName": "textures/floorGrass.png" }
@@ -317,10 +317,15 @@ def makeMap0():
 
     theMap.addWalls(finWallLs)
 
-    panePlan = {"imageName": "textures/objTree.png", "shiftPercentage": 0.7, "viewOffFacing": False}
-    tree = gameObj.GameObject.foursider(map.MapPos(theMap, (2, 19), 0), panePlan = panePlan, passable = False)
+    treeLs = []
+    cLs = [(0,12), (0,13), (1,13), (0,17), (2,17), (0,18), (0,19), (2,19), (8,19), (0,20), (7,20), (8,20), (9,20), (0,21), (1,21), (7,21), (8,21), (9,21), (1,22), (2,22), (3,22), (7,22), (8,22), (1,23), (2,23), (3,23), (7,23), (8,23)]
 
-    theMap.addObj(tree)
+    treePane = {"imageName": "textures/objTree.png", "shiftPercentage": 0.7, "viewOffFacing": False}
+    shadePane = {"imageName": "textures/objShadow.png", "shiftPercentage": 0.4, "viewOffFacing": False}
+    for coords in cLs:
+        treeLs.append(gameObj.GameObject.foursider(map.MapPos(theMap, coords, 0), panePlans = [treePane, shadePane], passable = False))
+
+    theMap.addObjs(treeLs)
 
     return theMap
 

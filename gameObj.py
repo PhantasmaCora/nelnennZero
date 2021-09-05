@@ -19,17 +19,18 @@ class GameObject(object):
             pane.setObjectAssoc(self)
 
     @classmethod
-    def foursider(cls, pos, panePlan, static = True, interact = None, passable = True):
+    def foursider(cls, pos, panePlans, static = True, interact = None, passable = True):
         panes = []
-        for f in range(4):
-            panes.append(ObjectPane.fromPlan(facing = f, plan = panePlan))
+        for pln in panePlans:
+            panes.append(ObjectPane.fromPlan(facing = -1, plan = pln))
         return cls(pos, static, interact, panes, passable)
 
     @classmethod
     def fromPlan(cls, pos, plan, panePlans):
         panesLs = []
-        print(str(plan["panePlanIds"]))
+        #print(str(plan["panePlanIds"]))
         for tup in plan["panePlanIds"]:
+            #print("made pane")
             panesLs.append(ObjectPane.fromPlan(tup[1], panePlans[tup[0]]))
         try:
             plan.pop("panePlanIds")
@@ -49,7 +50,7 @@ class GameObject(object):
             else:
                 panesLs.append((len(panePlans), pane.facing))
                 panePlans.append(thePlan)
-        print(str(panesLs))
+        #print(str(panesLs))
         plan["panePlanIds"] = panesLs
         # convert interaction to plan once they exist
         plan["panePlanIds"] = panesLs
@@ -76,7 +77,7 @@ class ObjectPane(object):
     # from an obj plan dict
     @classmethod
     def fromPlan(cls, facing, plan):
-        print("created pane")
+        #print("created pane")
         return cls(facing, **plan)
 
     def toPlan(self):
@@ -87,7 +88,7 @@ class ObjectPane(object):
         return plan
 
     def getView(self, camPos):
-        if self.facing != camPos.facing and not self.vof:
+        if self.facing != -1 and self.facing != camPos.facing and not self.vof:
             empty = pygame.Surface((1,1))
             empty.set_colorkey((0,0,0))
             return (empty, 10)
@@ -109,6 +110,8 @@ class ObjectPane(object):
 
         level = -row
         angle = camPos.facing - self.facing
+        if self.facing == -1:
+            angle = 0
         angle = angle % 4
 
         rInter = 1
@@ -120,6 +123,7 @@ class ObjectPane(object):
             r1 = row
             c1 = col + 1
             rInter = self.perc
+            level += self.perc - 1
         elif angle == 1:
             if col < 1:
                 r0 = row

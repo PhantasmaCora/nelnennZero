@@ -105,6 +105,7 @@ def loadMap(mh):
     # load objects
     objLs = []
     for key in mh.objects:
+        #print("make object")
         pos = map.MapPos(theMap, (key[0], key[1]), key[2])
         objLs.append(gameObj.GameObject.fromPlan(pos, mh.objects[key], mh.plans[3]))
 
