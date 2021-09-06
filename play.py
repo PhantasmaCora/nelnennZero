@@ -26,6 +26,24 @@ vh.autoScaleCenter()
 layout = viewport.ViewLayout([vh])
 
 while True:
+    # determine interact keys available
+    f = thePos.facing
+    tempPos = [entityPos.xy[0], entityPos.xy[1]]
+    if f == 0:
+        tempPos[1] -= 1
+    elif f == 1:
+        tempPos[0] += 1
+    elif f == 2:
+        tempPos[1] += 1
+    elif f == 3:
+        tempPos[0] -= 1
+
+    obj = theMap.objects(tuple(tempPos))
+    if obj != None and obj.interact != None:
+        keys = obj.interact.getKeys(thePos.facing)
+    else:
+        keys = (dict(), dict())
+
     # event handler (player inputs)
     for event in pygame.event.get():
         # if user wants to quit
@@ -34,7 +52,11 @@ while True:
             pygame.quit()
             sys.exit()
         elif event.type == KEYDOWN:
-            if event.key == K_RIGHT:
+            if event.key in keys[0]: # interaction keys
+                keys[0][event.key][1]()
+            elif event.key in keys[1]: # hidden interaction keys
+                keys[1][event.key][1]()
+            elif event.key == K_RIGHT: # basic movement keys
                 thePos.facing += 1
                 if thePos.facing > 3:
                     thePos.facing -= 4
