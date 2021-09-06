@@ -17,7 +17,7 @@ import mapStorage
 theMap = mapStorage.loadPickle("maps/surface.nzmp")
 thePos = map.MapPos(theMap, [4, 23], 0)
 
-#wl = map.Wall(map.MapPos(theMap, (4, 21), 0), imageName = "textures/wallBrick.png", viewOffFacing = False)
+#wl = map.Wall(map.MapPos(theMap, (4, 17), 0), imageName = "textures/wallBookshelf.png", viewOffFacing = False)
 #theMap.addWall(wl)
 
 vp = viewport.CameraViewport(thePos)
