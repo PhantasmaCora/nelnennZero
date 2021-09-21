@@ -6,52 +6,57 @@ import copy
 from constants import *
 
 class Interactor(object):
-    def __init__(self, interactions):
-        self.interactions = {0:[], 1:[], 2:[], 3:[]}
-        for inter in interactions:
-            inter.core = self
-            if inter.facing == -1:
-                for n in range(4):
-                    self.interactions[n].append(inter)
-            else:
-                self.interactions[inter.facing].append(inter)
-
+    def __init__(self, text = "", functions = dict()):
+        self.text = text
+        self.keys = functions
+        for key in self.keys:
+            self.keys[key].setCore(self)
         self.obj = None
-        self.pos = None
-        self.stateVars = dict()
 
-    def setObjectAssoc(self, obj):
+    def setObj(self, obj):
         self.obj = obj
-        self.pos = self.obj.pos
-
-    def getText(self, facing):
-        ls = []
-        for inter in self.interactions[facing]:
-            tx = inter.getText()
-            if tx != None and tx != "":
-                ls.append(tx)
-        return ls
-
-    def getKeys(self, facing):
-        kd = dict()
-        hkd = dict()
-        for inter in self.interactions[facing]:
-            tkd = inter.getKeys()
-            for key in tkd:
-                if tkd[key][0] == "":
-                    hkd[key] = tkd[key]
-                else:
-                    kd[key] = tkd[key]
-        return (kd, hkd)
-
-
-class Interaction(object):
-    def __init__(self, facing):
-        self.facing = facing
-        self.core = None
 
     def getText(self):
-        return ""
+        return self.text
 
-    def getKeys(self):
-        return dict() # tuple: (name, function)
+    def fire(self, player, key):
+        try:
+            self.keys[key].fire(player)
+        except KeyError:
+            pass
+
+class InteractFunction(object):
+    def __init__(self):
+        self.core = None
+
+    def setCore(self, core):
+        self.core = core
+
+    def fire(self, player):
+        pass
+
+class MultiFunction(InteractFunction):
+    def __init__(self, fns):
+        InteractFunction.__init__(self)
+        self.functions = fns
+
+    def fire(self, player):
+        for fn in self.functions:
+            fn.fire(player)
+
+class WallRemoveFn(InteractFunction):
+    def __init__(self, wall):
+        InteractFunction.__init__(self)
+        self.wall = wall
+
+    def fire(self, player):
+        pos = self.wall.pos
+        pos.map.removeWall(self.wall)
+
+class TeleportFn(InteractFunction):
+    def __init__(self, pos):
+        InteractFunction.__init__(self)
+        self.pos = pos
+
+    def fire(self, player):
+        player.pos = self.pos

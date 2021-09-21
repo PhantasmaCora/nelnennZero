@@ -265,6 +265,13 @@ class Map(object):
         for w in wallList:
             self.addWall(w)
 
+    def removeWall(self, wall):
+        pos = wall.pos
+        if not pos.map == self:
+            return
+        location = (wall.pos.xy[0], wall.pos.xy[1])
+        self.walls[location].remove(wall)
+
     def getWalls(self, pos):
         try:
             return self.walls[pos]

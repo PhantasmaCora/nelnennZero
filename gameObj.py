@@ -9,7 +9,7 @@ from map import MapPos
 import transform
 
 class GameObject(object):
-    def __init__(self, pos, static = True, interact = None, panes = [], passable = True):
+    def __init__(self, pos, static = True, interact = [], panes = [], passable = True):
         self.pos = pos
         self.static = static
         self.interact = interact
@@ -52,7 +52,9 @@ class GameObject(object):
                 panePlans.append(thePlan)
         #print(str(panesLs))
         plan["panePlanIds"] = panesLs
-        # convert interaction to plan once they exist
+        # directly drop interaction into plan, hope this works!
+        plan["interact"] = self.interact
+
         plan["panePlanIds"] = panesLs
         plan["static"] = self.static
         plan["passable"] = self.passable

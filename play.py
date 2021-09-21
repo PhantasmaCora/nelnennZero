@@ -17,9 +17,6 @@ import mapStorage
 theMap = mapStorage.loadPickle("maps/surface.nzmp")
 thePos = map.MapPos(theMap, [4, 23], 0)
 
-#wl = map.Wall(map.MapPos(theMap, (4, 17), 0), imageName = "textures/wallBookshelf.png", viewOffFacing = False)
-#theMap.addWall(wl)
-
 vp = viewport.CameraViewport(thePos)
 vh = viewport.ViewHolder(1, (0,0), vp, 0)
 vh.autoScaleCenter()
