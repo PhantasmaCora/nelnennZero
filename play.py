@@ -25,7 +25,7 @@ layout = viewport.ViewLayout([vh])
 while True:
     # determine interact keys available
     f = thePos.facing
-    tempPos = [entityPos.xy[0], entityPos.xy[1]]
+    tempPos = [thePos.xy[0], thePos.xy[1]]
     if f == 0:
         tempPos[1] -= 1
     elif f == 1:
@@ -35,7 +35,11 @@ while True:
     elif f == 3:
         tempPos[0] -= 1
 
-    obj = theMap.objects(tuple(tempPos))
+    obj = None
+    try:
+        obj = theMap.allObjects[tuple(tempPos)]
+    except KeyError:
+        pass
     if obj != None and obj.interact != None:
         keys = obj.interact.getKeys(thePos.facing)
     else:

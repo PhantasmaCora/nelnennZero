@@ -9,7 +9,7 @@ from map import MapPos
 import transform
 
 class GameObject(object):
-    def __init__(self, pos, static = True, interact = [], panes = [], passable = True):
+    def __init__(self, pos, static = True, interact = None, panes = [], passable = True):
         self.pos = pos
         self.static = static
         self.interact = interact
