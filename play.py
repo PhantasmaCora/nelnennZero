@@ -73,7 +73,7 @@ while True:
         elif event.type == VIDEORESIZE:
             vh.autoScaleCenter()
 
-    DISPLAYSURF.fill((0,0,0))
+    DISPLAYSURF.fill((3,3,3))
 
     vp.update()
 

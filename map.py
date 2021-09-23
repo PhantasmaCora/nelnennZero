@@ -115,17 +115,21 @@ class Wall(object):
             empty.set_colorkey((0,0,0))
             return (empty, 10)
 
-        # print(str((r0,c0)) + " " + str((r1,c1)))
+        #print(str((r0,c0)) + " " + str((r1,c1)))
 
         result = transform.wall_transform(self.image, (cRows[r0], cRows[r1], fRows[r0], fRows[r1]), (xCols[r0][c0], xCols[r1][c1]))
         if r0 == 0 and c0 == 1 and not self.seeThrough:
-            result.fill((1,1,1), pygame.Rect(0, 0, xCols[0][1], 512))
+            result.fill((3,3,3), pygame.Rect(0, 0, xCols[0][1], 512))
+            level = 0
         if r1 == 0 and c1 == 2 and not self.seeThrough:
             r2 = pygame.Surface((512,512))
-            r2.fill((1,1,1))
+            r2.fill((3,3,3))
             r2.blit(result, (0,0))
             result = r2
+            level = 0
         result.set_colorkey((0,0,0))
+
+        #print(str(level) + ', ' + str(angle))
         return (result, level)
 
 class Horizontal(object):
