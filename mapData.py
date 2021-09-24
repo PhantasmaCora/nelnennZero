@@ -217,7 +217,7 @@ def makeMap0():
 
         {"pos": map.MapPos(theMap, (4,15), 2), "config": wmtn},
 
-        {"pos": map.MapPos(theMap, (6,16), 3), "config": wmtn},
+        {"pos": map.MapPos(theMap, (7,16), 1), "config": wmtn},
 
         {"pos": map.MapPos(theMap, (7,17), 2), "config": wmtn},
         {"pos": map.MapPos(theMap, (7,17), 3), "config": wmtn},

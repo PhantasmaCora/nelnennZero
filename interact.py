@@ -54,9 +54,12 @@ class WallRemoveFn(InteractFunction):
         pos.map.removeWall(self.wall)
 
 class TeleportFn(InteractFunction):
-    def __init__(self, pos):
+    def __init__(self, mapname, pos, facing):
         InteractFunction.__init__(self)
+        self.mapname = mapname
         self.pos = pos
+        self.facing = facing
 
     def fire(self, player):
-        player.pos = self.pos
+        if self.mapname = player.pos.map.name:
+            player.pos = map.MapPos(player.pos.map, self.pos, self.facing)
