@@ -24,17 +24,19 @@ class Viewport(object):
         return Vector(0,0)
 
 class CameraViewport(Viewport):
-    def __init__(self, mapPos):
+    def __init__(self, object):
         Viewport.__init__(self, (512, 512))
         self.cached = None
         import map
-        self.cachePos = map.MapPos(mapPos.map, (-1,-1), -1)
-        self.mapPos = mapPos
+        self.object = object
+        self.mapPos = self.object.pos
+        self.cachePos = map.MapPos(self.mapPos.map, (-1,-1), -1)
 
         self.lampFactor = 0
         self.noisePos = [0,0]
 
     def update(self):
+        self.mapPos = self.object.pos
         f = random.random() / 2
         self.lampFactor += f ** 3
 

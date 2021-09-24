@@ -10,22 +10,23 @@ from constants import *
 import map
 import gameObj
 import viewport
+import playerchar
 
 import mapStorage
 
 #theMap = mapData.makeMap0()
 theMap = mapStorage.loadPickle("maps/surface.nzmp")
-thePos = map.MapPos(theMap, [4, 23], 0)
+pc = playerchar.PlayerCharacter(map.MapPos(theMap, [5, 23], 0))
 
-vp = viewport.CameraViewport(thePos)
+vp = viewport.CameraViewport(pc)
 vh = viewport.ViewHolder(1, (0,0), vp, 0)
 vh.autoScaleCenter()
 layout = viewport.ViewLayout([vh])
 
 while True:
     # determine interact keys available
-    f = thePos.facing
-    tempPos = [thePos.xy[0], thePos.xy[1]]
+    f = pc.pos.facing
+    tempPos = [pc.pos.xy[0], pc.pos.xy[1]]
     if f == 0:
         tempPos[1] -= 1
     elif f == 1:
@@ -57,19 +58,8 @@ while True:
                 keys[0][event.key][1]()
             elif event.key in keys[1]: # hidden interaction keys
                 keys[1][event.key][1]()
-            elif event.key == K_RIGHT: # basic movement keys
-                thePos.facing += 1
-                if thePos.facing > 3:
-                    thePos.facing -= 4
-            elif event.key == K_LEFT:
-                thePos.facing -= 1
-                if thePos.facing < 0:
-                    thePos.facing += 4
-            elif event.key == K_UP:
-                result = thePos.map.attemptMove(thePos)
-                thePos = result[0]
-                #print(str(thePos.xy))
-                vp.mapPos = thePos
+            else:
+                pc.handleKey(event)
         elif event.type == VIDEORESIZE:
             vh.autoScaleCenter()
 
