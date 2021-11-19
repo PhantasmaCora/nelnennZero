@@ -61,5 +61,9 @@ class TeleportFn(InteractFunction):
         self.facing = facing
 
     def fire(self, player):
+        from map import MapPos
         if self.mapname = player.pos.map.name:
-            player.pos = map.MapPos(player.pos.map, self.pos, self.facing)
+            player.pos = MapPos(player.pos.map, self.pos, self.facing)
+        else:
+            newMap = mapStorage.loadPickleself.mapname)
+            player.pos = MapPos(newMap, self.pos, self.facing)
